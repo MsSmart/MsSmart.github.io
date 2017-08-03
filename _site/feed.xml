@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>MsSmart</title>
+    <description>程序媛一枚，就职于美团，从事iOS开发工作&lt;/br&gt;沉淀技术，记录成长，感受生活，不忘初心</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 04 Aug 2017 01:15:07 +0800</pubDate>
+    <lastBuildDate>Fri, 04 Aug 2017 01:15:07 +0800</lastBuildDate>
+    <generator>Jekyll v3.4.0</generator>
+    
+      <item>
+        <title>Jekyll搭建Blog</title>
+        <description>&lt;p&gt;每次逛大神们的Blog，都特别崇拜，语言表述清楚，样式简约大方。后来发现一般喜欢折腾技术、喜欢分享的大神都是自己搭建Blog，折腾自己搭建东西顺手且显得高大上。于是乎，我在网上找了些搭建的教程，也开始折腾一番。有了自己的窝，督促自己养成写作和积累习惯。下面是我记录的搭建过程，分享给大家，也许你也会用得到。&lt;/p&gt;
+
+&lt;p&gt;​	&lt;strong&gt;预达到效果&lt;/strong&gt;：通过域名访问自己的博客。&lt;/p&gt;
+
+&lt;h3 id=&quot;一github创建仓库&quot;&gt;一、github创建仓库&lt;/h3&gt;
+
+&lt;h4 id=&quot;1-create仓库&quot;&gt;1. create仓库&lt;/h4&gt;
+
+&lt;p&gt;在自己的github账户创建仓库&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/1.jpg&quot; alt=&quot;1&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/2.jpg&quot; alt=&quot;2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：仓库名字一定要用 [你的github账号名].github.io&lt;/p&gt;
+
+&lt;h4 id=&quot;2-clone仓库&quot;&gt;2. clone仓库&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/3.jpg&quot; alt=&quot;2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;复制git地址，打开terminal，cd你要存储远程仓库的文件夹，运行&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone [远程仓库git地址]&lt;/code&gt;
+也可以用sourcetree，随你自己偏好。&lt;/p&gt;
+
+&lt;h4 id=&quot;3访问测试&quot;&gt;3.访问测试&lt;/h4&gt;
+
+&lt;p&gt;我们先测试一把，二级域名能否正常访问。在仓库文件夹新建index.html， 内容如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cp&quot;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+	&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
+			&lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&amp;gt;&lt;/span&gt;Hello World&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&lt;/span&gt;
+			&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;I'm hosted with GitHub Pages.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+		&lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;保存好上传到github刚刚新建好的仓库。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/4.jpg&quot; alt=&quot;2&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;在浏览器输入&lt;code class=&quot;highlighter-rouge&quot;&gt;[你的github账号名].github.io&lt;/code&gt;，就可以看到index.html的内容。&lt;/p&gt;
+
+&lt;h3 id=&quot;二jekyll环境搭建&quot;&gt;二、Jekyll环境搭建&lt;/h3&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a href=&quot;http://jekyllcn.com/&quot;&gt;Jekyll中文文档&lt;/a&gt;&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;https://jekyllrb.com/&quot;&gt;Jekyll英文文档&lt;/a&gt;&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://jekyllthemes.org/&quot;&gt;Jekyll主题列表&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;　　&lt;/p&gt;
+
+&lt;p&gt;GitHub Pages为了提供对HTML内容的支持，选择了Jekyll作为模板系统，Jekyll是一个强大的静态模板系统，作为个人博客使用，基本上可以满足要求，也能保持管理的方便。&lt;/p&gt;
+
+&lt;p&gt;Jekyll是一种简单的、适用于博客的、静态网站生成引擎。它使用一个模板目录作为网站布局的基础框架，支持Markdown、Textile等标记语言的解析，提供了模板、变量、插件等功能，最终生成一个完整的静态Web站点。说白了就是，只要安装Jekyll的规范和结构，不用写html，就可以生成网站。&lt;/p&gt;
+
+&lt;h4 id=&quot;1-jekyll基本结构&quot;&gt;1. Jekyll基本结构&lt;/h4&gt;
+&lt;p&gt;Jekyll的核心其实就是一个文本的转换引擎，用你最喜欢的标记语言写文档，可以是Markdown、Textile或者HTML等等，再通过layout将文档拼装起来，根据你设置的URL规则来展现，这些都是通过严格的配置文件来定义，最终的产出就是web页面。&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;|-- _config.yml
+|-- _includes
+|-- _layouts
+|   |-- default.html
+|    -- post.html
+|-- _posts
+|   |-- 2007-10-29-why-every-programmer-should-play-nethack.textile
+|    -- 2009-04-26-barcamp-boston-4-roundup.textile
+|-- _site
+ -- index.html
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;将主题 &lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;vno-jekyll&lt;/a&gt;下载到本地，解压到刚刚的代码仓库目录下，可以把文件夹里的文件都删了。&lt;/p&gt;
+
+&lt;h4 id=&quot;2-准备模板&quot;&gt;2. 准备模板&lt;/h4&gt;
+
+&lt;p&gt;下载模板 &lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;vno-jekyll&lt;/a&gt;，解压到你的git仓库文件夹下（文件夹的内容可以在解压前都删除掉）。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/5.jpg&quot; alt=&quot;2&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;3-安装jekyll&quot;&gt;3. 安装Jekyll&lt;/h4&gt;
+
+&lt;p&gt;（1）先装ruby，如何安装ruby可以google或者baidu一下。&lt;/p&gt;
+
+&lt;p&gt;（2）参考&lt;a href=&quot;http://jekyllcn.com/&quot;&gt;Jekyll&lt;/a&gt;安装。&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;~ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gem install jekyll bundler
+~ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;仓库的本地地址]
+~/[仓库的本地地址] &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle install
+~/[仓库的本地地址] &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;解释：这里没有用这个命令， &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll new [新建blog名字]&lt;/code&gt; ，是因为拷贝的主题模板已经包含了博客目录。&lt;/p&gt;
+
+&lt;p&gt;此时teminal提示：&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Server address: http://127.0.0.1:4000/
+Server running... press ctrl-c to stop
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;在浏览器访问http://mssmart.top&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/6.jpg&quot; alt=&quot;6&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;（3）将文件都上传到远程github仓库。浏览器输入：&lt;code class=&quot;highlighter-rouge&quot;&gt;[你的github账号名].github.io&lt;/code&gt;，可以看到自己的博客啦。&lt;/p&gt;
+
+&lt;h4 id=&quot;4-主题配置&quot;&gt;4. 主题配置&lt;/h4&gt;
+
+&lt;p&gt;（1）博客描述、个人介绍修改的文件在根目录下： &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;（2）修改头像和背景：&lt;code class=&quot;highlighter-rouge&quot;&gt;仓库目录-&amp;gt;assets-&amp;gt;images&lt;/code&gt;，直接替换掉头像、背景图片，不要改变文件名。&lt;/p&gt;
+
+&lt;h4 id=&quot;5-写博客&quot;&gt;5. 写博客&lt;/h4&gt;
+
+&lt;p&gt;（1）文章路径&lt;/p&gt;
+
+&lt;p&gt;文章存储路径：仓库目录-&amp;gt;_posts。文件名格式：`YYYY-MM-DD-文章标题.markdown，后缀.md也可以。&lt;/p&gt;
+
+&lt;p&gt;文章上传前可以在本地服务器上看效果。&lt;code class=&quot;highlighter-rouge&quot;&gt;~/[仓库的本地地址] $ bundle exec jekyll serve&lt;/code&gt;，然后在浏览器输入：http://mssmart.top。&lt;/p&gt;
+
+&lt;p&gt;（2）书写工具&lt;/p&gt;
+
+&lt;p&gt;我使用的是Typora或者macDown，也可以根据自己的喜好选一款顺手的markdown工具。&lt;/p&gt;
+
+&lt;p&gt;（3）书写格式&lt;/p&gt;
+
+&lt;p&gt;在文章的开头，我们需要先设置头信息。头信息需要根据&lt;a href=&quot;http://yaml.org/&quot;&gt;YAML&lt;/a&gt;的格式写在两行三虚线之间。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;---
+layout: post
+title: 这个是标题
+date: 2017-08-03 11:11:11.000000000 +09:00
+tags: 打怪练级
+---
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;layout&lt;/code&gt;：指文章布局的类型，需要使用指定的模版文件，模版文件放在&lt;code class=&quot;highlighter-rouge&quot;&gt;_layouts&lt;/code&gt;目录下，暂时用&lt;code class=&quot;highlighter-rouge&quot;&gt;post.html&lt;/code&gt;。&lt;code class=&quot;highlighter-rouge&quot;&gt;page.html&lt;/code&gt;模板比&lt;code class=&quot;highlighter-rouge&quot;&gt;post.html&lt;/code&gt;模板少了&lt;code class=&quot;highlighter-rouge&quot;&gt;更早的文章&lt;/code&gt;和&lt;code class=&quot;highlighter-rouge&quot;&gt;评论模块&lt;/code&gt;。有能力的也可以自己写一个文章页面的布局模板文件。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt;：文章的标题。
+&lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt;：发布文章的时间。（后面的一串零零零好像不能省）
+&lt;code class=&quot;highlighter-rouge&quot;&gt;tags&lt;/code&gt;：标签，一篇文章可以设置多个标签，使用空格分割。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;  基本上一篇文章只要用到以上一些信息就可以了，当然还有其它的变量可以设置，具体用法可以在&lt;a href=&quot;http://jekyllrb.com/docs/frontmatter/&quot;&gt;Jekyll网站&lt;/a&gt;上查看。&lt;/p&gt;
+
+&lt;h4 id=&quot;6-设置评论功能&quot;&gt;6. 设置评论功能&lt;/h4&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;登录&lt;a href=&quot;https://disqus.com/&quot;&gt;Disqus&lt;/a&gt;网站注册一个账号（开vpn比较快点）&lt;/li&gt;
+  &lt;li&gt;点击Setting&lt;code class=&quot;highlighter-rouge&quot;&gt;图标&lt;/code&gt;，选择&lt;code class=&quot;highlighter-rouge&quot;&gt;Add disqus to site&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;点击&lt;code class=&quot;highlighter-rouge&quot;&gt;Start Using Engage&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;设置自己的Disqus的URL&lt;/li&gt;
+  &lt;li&gt;设置根目录下&lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;文件的disqus的属性&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;# Comment
+comment:
+    disqus: MsSmart
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;​&lt;/p&gt;
+
+&lt;h3 id=&quot;三绑定个人域名&quot;&gt;三、绑定个人域名&lt;/h3&gt;
+
+&lt;h4 id=&quot;1创建chame文件&quot;&gt;1.创建CHAME文件&lt;/h4&gt;
+
+&lt;p&gt;在本地仓库的根目录创建CHAME文件，将域名写入文件，&lt;code class=&quot;highlighter-rouge&quot;&gt;MsSmart.top&lt;/code&gt;。push到远程仓库。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/8.jpg&quot; alt=&quot;8&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/9.jpg&quot; alt=&quot;9&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;2买域名&quot;&gt;2.买域名&lt;/h4&gt;
+
+&lt;p&gt;在&lt;a href=&quot;https://wanwang.aliyun.com/&quot;&gt;万维&lt;/a&gt;购买域名，名字可以与github用户名不同。&lt;/p&gt;
+
+&lt;h4 id=&quot;3添加a记录&quot;&gt;3.添加A记录&lt;/h4&gt;
+
+&lt;p&gt;购买完，进入&lt;code class=&quot;highlighter-rouge&quot;&gt;管理控制台&lt;/code&gt; -&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;云解析&lt;/code&gt; -&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;解析&lt;/code&gt; -&amp;gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;添加解析&lt;/code&gt; -&amp;gt; 添加&lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt;记录 :
+&lt;code class=&quot;highlighter-rouge&quot;&gt;192.30.252.153&lt;/code&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;192.30.252.154&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://mssmart.top/assets/blogimg/20170804/10.jpg&quot; alt=&quot;10&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;4等待dns解析生效&quot;&gt;4.等待DNS解析生效&lt;/h4&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;大概十分钟内吧，奇葩情况可能要0-72小时都有可能。
+可以在终端输入：&lt;code class=&quot;highlighter-rouge&quot;&gt;dig mssmart.top +nostats +nocomments +nocmd&lt;/code&gt;，查看解析生效没。如果看到下面两条记录说明就解析好了。快输入你的域名看看效果吧。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;stelladeMacBook-Pro:MsSmart.github.io stella$ dig mssmart.top +nostats +nocomments +nocmd
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; mssmart.top +nostats +nocomments +nocmd
+;; global options: +cmd
+;mssmart.top.			IN	A
+mssmart.top.		530	IN	A	192.30.252.153
+mssmart.top.		3530	IN	NS	dns1.hichina.com.
+mssmart.top.		3530	IN	NS	dns2.hichina.com.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;参考文献：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;http://louisly.com/2016/04/used-jekyll-to-create-my-github-blog/&lt;/p&gt;
+
+  &lt;p&gt;http://baixin.io/2016/10/jekyll_tutorials1/&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+</description>
+        <pubDate>Thu, 03 Aug 2017 10:11:11 +0800</pubDate>
+        <link>http://localhost:4000/2017/08/Jekyll%E6%90%AD%E5%BB%BABlog/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/08/Jekyll%E6%90%AD%E5%BB%BABlog/</guid>
+        
+        <category>打怪练级</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Hello World - Vno</title>
+        <description>&lt;h4 id=&quot;whats-this&quot;&gt;What’s this&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;Vno Jekyll&lt;/a&gt; is a theme for &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll&lt;/a&gt;. It is a port of my Ghost theme &lt;a href=&quot;https://github.com/onevcat/vno&quot;&gt;vno&lt;/a&gt;, which is originally developed from &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Dale Anthony’s Uno&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;usage&quot;&gt;Usage&lt;/h4&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git clone https://github.com/onevcat/vno-jekyll.git your_site
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;your_site
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;bundler install
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;bundler &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Your site with &lt;code class=&quot;highlighter-rouge&quot;&gt;Vno Jekyll&lt;/code&gt; enabled should be accessible in http://127.0.0.1:4000.&lt;/p&gt;
+
+&lt;p&gt;For more information about Jekyll, please visit &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll’s site&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;configuration&quot;&gt;Configuration&lt;/h4&gt;
+
+&lt;p&gt;All configuration could be done in &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;. Remember you need to restart to serve the page when after changing the config file. Everything in the config file should be self-explanatory.&lt;/p&gt;
+
+&lt;h4 id=&quot;background-image-and-avatar&quot;&gt;Background image and avatar&lt;/h4&gt;
+
+&lt;p&gt;You could replace the background and avatar image in &lt;code class=&quot;highlighter-rouge&quot;&gt;assets/images&lt;/code&gt; folder to change them.&lt;/p&gt;
+
+&lt;h4 id=&quot;sites-using-vno&quot;&gt;Sites using Vno&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;My blog&lt;/a&gt; is using &lt;code class=&quot;highlighter-rouge&quot;&gt;Vno Jekyll&lt;/code&gt; as well, you could see how it works in real. There are some other sites using the same theme. You can find them below:&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Site Name&lt;/th&gt;
+      &lt;th&gt;URL&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;OneV’s Den&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;http://onevcat.com&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;July Tang&lt;/td&gt;
+      &lt;td&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;http://blog.julytang.xyz&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;If you happen to be using this theme, welcome to &lt;a href=&quot;https://github.com/onevcat/vno-jekyll/pulls&quot;&gt;send me a pull request&lt;/a&gt; to add your site link here. :)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;license&quot;&gt;License&lt;/h4&gt;
+
+&lt;p&gt;Great thanks to &lt;a href=&quot;https://github.com/daleanthony&quot;&gt;Dale Anthony&lt;/a&gt; and his &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Uno&lt;/a&gt;. Vno Jekyll is based on Uno, and contains a lot of modification on page layout, animation, font and some more things I can not remember. Vno Jekyll is followed with Uno and be licensed as &lt;a href=&quot;http://creativecommons.org/licenses/by/4.0/&quot;&gt;Creative Commons Attribution 4.0 International&lt;/a&gt;. See the link for more information.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 16 Feb 2016 14:32:24 +0800</pubDate>
+        <link>http://localhost:4000/2016/02/hello-world-vno/</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/02/hello-world-vno/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Sample Post</title>
+        <description>&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+
+&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+
+&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 15 Feb 2016 14:32:24 +0800</pubDate>
+        <link>http://localhost:4000/2016/02/sample-post/</link>
+        <guid isPermaLink="true">http://localhost:4000/2016/02/sample-post/</guid>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
