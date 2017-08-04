@@ -82,7 +82,7 @@ Jekyll的核心其实就是一个文本的转换引擎，用你最喜欢的标�
 |-- _site
  -- index.html
 ```
-将主题 [vno-jekyll](https://github.com/onevcat/vno-jekyll)下载到本地，解压到刚刚的代码仓库目录下，可以把文件夹里的文件都删了。
+
 
 #### 2. 准备模板
 
@@ -98,13 +98,17 @@ Jekyll的核心其实就是一个文本的转换引擎，用你最喜欢的标�
 
 ```sh
 ~ $ gem install jekyll bundler
-~ $ cd [仓库的本地地址]
-~/[仓库的本地地址] $ bundle install
-~/[仓库的本地地址] $ bundle exec jekyll serve
-
+~ $ cd MsSmart.github.io
+~/MsSmart.github.io $ bundle install
+~/MsSmart.github.io $ bundle exec jekyll serve
 ```
 
-解释：这里没有用这个命令， `jekyll new [新建blog名字]` ，是因为拷贝的主题模板已经包含了博客目录。
+解释：
+
+1. MsSmart.github.io是我的仓库本地文件夹，可以替换成你自己的仓库的文件夹
+
+
+2. 这里没有用这个命令， `jekyll new [新建blog名字]` ，是因为拷贝的主题模板已经包含了博客目录。
 
 此时teminal提示：
 
