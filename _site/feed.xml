@@ -5,9 +5,622 @@
     <description>程序媛一枚，就职于美团，从事iOS开发工作&lt;/br&gt;沉淀技术，记录成长，感受生活，不忘初心</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 04 Aug 2017 01:15:07 +0800</pubDate>
-    <lastBuildDate>Fri, 04 Aug 2017 01:15:07 +0800</lastBuildDate>
+    <pubDate>Mon, 11 Sep 2017 23:36:25 +0800</pubDate>
+    <lastBuildDate>Mon, 11 Sep 2017 23:36:25 +0800</lastBuildDate>
     <generator>Jekyll v3.4.0</generator>
+    
+      <item>
+        <title>ReactiveCocoa初识之二</title>
+        <description>&lt;h2 id=&quot;一常见用法&quot;&gt;一、常见用法&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;替代代理：&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_signalForSelector&lt;/code&gt;。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;代替KVO：&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_valuesAndChangesForKeyPath&lt;/code&gt;用于监听某个对象的属性改变。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;监听事件：&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_signalForControlEvents&lt;/code&gt;用于监听某个事件。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;代替通知：&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_addObserverForName&lt;/code&gt;用于监听某个通知。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;监听文本框文字改变：&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_textSignal&lt;/code&gt;只要文本框发出改变就会发出这个信号。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_liftSelector:withSignalsFromArray:Signals&lt;/code&gt;:处理当界面有多次请求时，需要都获取到数据时，才能展示界面。&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;rac_liftSelector:withSignalsFromArray:Signals&lt;/code&gt;当传入的Signals(信号数组)，每一个signal都至少sendNext过一次，就会去触发第一个selector参数的方法。&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;使用注意：几个信号，参数一的方法就几个参数，每个参数对应信号发出的数据。&lt;/p&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;代码演示&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 1.代替代理
+    // 需求：自定义redView,监听红色view中按钮点击
+    // 之前都是需要通过代理监听，给红色View添加一个代理属性，点击按钮的时候，通知代理做事情
+    // rac_signalForSelector:把调用某个对象的方法的信息转换成信号，就要调用这个方法，就会发送信号。
+    // 这里表示只要redV调用btnClick:,就会发出信号，订阅就好了。
+    [[redV rac_signalForSelector:@selector(btnClick:)] subscribeNext:^(id x) {
+        NSLog(@&quot;点击红色按钮&quot;);
+    }];
+
+    // 2.KVO
+    // 把监听redV的center属性改变转换成信号，只要值改变就会发送信号
+    // observer:可以传入nil
+    [[redV rac_valuesAndChangesForKeyPath:@&quot;center&quot; options:NSKeyValueObservingOptionNew observer:nil] subscribeNext:^(id x) {
+
+        NSLog(@&quot;%@&quot;,x);
+
+    }];
+
+    // 3.监听事件
+    // 把按钮点击事件转换为信号，点击按钮，就会发送信号
+    [[self.btn rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(id x) {
+
+        NSLog(@&quot;按钮被点击了&quot;);
+    }];
+
+    // 4.代替通知
+    // 把监听到的通知转换信号
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:UIKeyboardWillShowNotification object:nil] subscribeNext:^(id x) {
+        NSLog(@&quot;键盘弹出&quot;);
+    }];
+
+    // 5.监听文本框的文字改变
+   [_textField.rac_textSignal subscribeNext:^(id x) {
+
+       NSLog(@&quot;文字改变了%@&quot;,x);
+   }];
+
+   // 6.处理多个请求，都返回结果的时候，统一做处理.
+    RACSignal *request1 = [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+
+        // 发送请求1
+        [subscriber sendNext:@&quot;发送请求1&quot;];
+        return nil;
+    }];
+
+    RACSignal *request2 = [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+        // 发送请求2
+        [subscriber sendNext:@&quot;发送请求2&quot;];
+        return nil;
+    }];
+
+    // 使用注意：几个信号，参数一的方法就几个参数，每个参数对应信号发出的数据。
+    [self rac_liftSelector:@selector(updateUIWithR1:r2:) withSignalsFromArray:@[request1,request2]];
+
+
+}
+// 更新UI
+- (void)updateUIWithR1:(id)data r2:(id)data1
+{
+    NSLog(@&quot;更新UI%@  %@&quot;,data,data1);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;二常见宏&quot;&gt;二、常见宏&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;RAC(TARGET, [KEYPATH, [NIL_VALUE]]):用于给某个对象的某个属性绑定。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    // 只要文本框文字改变，就会修改label的文字
+    RAC(self.labelView,text) = _textField.rac_textSignal;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RACObserve(self, name):监听某个对象的某个属性,返回的是信号。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[RACObserve(self.view, center) subscribeNext:^(id x) {
+
+        NSLog(@&quot;%@&quot;,x);
+    }];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;@weakify(Obj)和@strongify(Obj),一般两个都是配套使用,在主头文件(ReactiveCocoa.h)中并没有导入，需要自己手动导入，RACEXTScope.h才可以使用。但是每次导入都非常麻烦，只需要在主头文件自己导入就好了。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;RACTuplePack：把数据包装成RACTuple（元组类）&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 把参数中的数据包装成元组
+    RACTuple *tuple = RACTuplePack(@10,@20);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RACTupleUnpack：把RACTuple（元组类）解包成对应的数据。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    // 把参数中的数据包装成元组
+    RACTuple *tuple = RACTuplePack(@&quot;xmg&quot;,@20);
+
+    // 解包元组，会把元组的值，按顺序给参数里面的变量赋值
+    // name = @&quot;xmg&quot; age = @20
+    RACTupleUnpack(NSString *name,NSNumber *age) = tuple;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;参考文献：http://www.jianshu.com/p/87ef6720a096&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 30 Aug 2017 10:11:11 +0800</pubDate>
+        <link>http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%BA%8C/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%BA%8C/</guid>
+        
+        <category>修道练术</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>ReactiveCocoa初识之一</title>
+        <description>&lt;h2 id=&quot;1-racsignal&quot;&gt;1. RACSignal&lt;/h2&gt;
+
+&lt;p&gt;信号类，用于数据传递，只要有数据改变，信号内部接收到数据，就会马上发出数据。&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;数据改变时，信号内部会发出数据，它本身不具备发送信号的能力，而是交给内部一个订阅者去发出。&lt;/li&gt;
+  &lt;li&gt;默认一个信号都是冷信号，也就是值改变了，也不会触发，只有订阅了这个信号，这个信号才会变为热信号，值改变了才会触发。&lt;/li&gt;
+  &lt;li&gt;如何订阅信号：调用信号RACSignal的&lt;code class=&quot;highlighter-rouge&quot;&gt;subscribeNext&lt;/code&gt;就能订阅。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;11-racsignal使用步骤&quot;&gt;1.1. RACSignal使用步骤&lt;/h3&gt;
+
+&lt;p&gt;(1) 创建信号&lt;code class=&quot;highlighter-rouge&quot;&gt;- (RACSignal *)createSignal:(RACDisposable * (^)(id&amp;lt;RACSubscriber&amp;gt; subscriber))didSubscribe;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;(2) 订阅信号，才会激活 &lt;code class=&quot;highlighter-rouge&quot;&gt;-(RACDisposable *)subscribeNext:(void (^)(id x))nextBlock;&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;(3) 发送信号 &lt;code class=&quot;highlighter-rouge&quot;&gt;(void)sendNext:(id)value;&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;12-racsignal底层实现&quot;&gt;1.2. RACSignal底层实现&lt;/h3&gt;
+
+&lt;p&gt;(1) 创建信号，首先把&lt;code class=&quot;highlighter-rouge&quot;&gt;didSubscribe&lt;/code&gt;保存到信号中，还不会触发。&lt;/p&gt;
+
+&lt;p&gt;(2) 当信号被订阅，也就是调用&lt;code class=&quot;highlighter-rouge&quot;&gt;signal&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;subscribeNext:nextBlock&lt;/code&gt;。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;subscribeNext&lt;/code&gt;内部会创建订阅者&lt;code class=&quot;highlighter-rouge&quot;&gt;subscriber&lt;/code&gt;，并且把&lt;code class=&quot;highlighter-rouge&quot;&gt;nextBlock&lt;/code&gt;保存到&lt;code class=&quot;highlighter-rouge&quot;&gt;subscriber&lt;/code&gt;中。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;subscribeNext&lt;/code&gt;内部会调用&lt;code class=&quot;highlighter-rouge&quot;&gt;siganl&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;didSubscribe&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(3) siganl的didSubscribe中调用&lt;code class=&quot;highlighter-rouge&quot;&gt;[subscriber sendNext:@1]&lt;/code&gt;
+	- ​&lt;code class=&quot;highlighter-rouge&quot;&gt;sendNext&lt;/code&gt;底层其实就是执行&lt;code class=&quot;highlighter-rouge&quot;&gt;subscriber&lt;/code&gt;的&lt;code class=&quot;highlighter-rouge&quot;&gt;nextBlock&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;​示例代码&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  // 1.创建信号(block调用时刻：每当有订阅者订阅信号，就会调用block)
+  RACSignal *siganl = [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+  		// 2.发送信号
+  		[subscriber sendNext:@1];
+  		// 如果不在发送数据，最好发送信号完成，内部会自动调用[RACDisposable disposable]取消订阅信号。
+  		[subscriber sendCompleted];
+  		return [RACDisposable disposableWithBlock:^{ 
+  			// block调用时刻：当信号发送完成或者发送错误，就会自动执行这个block,取消订阅信号。
+  			// 执行完Block后，当前信号就不在被订阅了。
+        	NSLog(@&quot;信号被销毁&quot;);
+        	}];
+  }];
+
+  // 3.订阅信号,才会激活信号(block调用时刻：每当有信号发出数据，就会调用block)
+  [siganl subscribeNext:^(id x) {
+  		NSLog(@&quot;接收到数据:%@&quot;,x);
+  }];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;2racsubscriber&quot;&gt;2.RACSubscriber&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;订阅者，用于发送信号，这是一个协议，不是一个类，只要遵守这个协议，并且实现方法才能成为订阅者。&lt;/li&gt;
+  &lt;li&gt;通过create创建的信号，都有一个订阅者，帮助他发送数据。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;3-racdisposable&quot;&gt;3. RACDisposable&lt;/h2&gt;
+
+&lt;p&gt;用于取消订阅或者清理资源，当信号发送完成或者发送错误的时候，就会自动触发它。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;使用场景&lt;/em&gt;&lt;/strong&gt;：不想监听某个信号时，可以通过它主动取消订阅信号。&lt;/p&gt;
+
+&lt;h2 id=&quot;4racsubject&quot;&gt;4.RACSubject&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject&lt;/code&gt;：信号提供者，自己可以充当信号，又能发送信号。&lt;strong&gt;&lt;em&gt;使用场景&lt;/em&gt;&lt;/strong&gt; ：通常用来代替代理，有了它，就不必要定义代理了。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RACReplaySubject&lt;/code&gt;：重复提供信号类，&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject&lt;/code&gt;的子类。&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject&lt;/code&gt;与&lt;code class=&quot;highlighter-rouge&quot;&gt;RACReplaySubject&lt;/code&gt;区别：&lt;code class=&quot;highlighter-rouge&quot;&gt;RACReplaySubject&lt;/code&gt;可以先发送信号，在订阅信号，&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject&lt;/code&gt;就不可以。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;场景1&lt;/em&gt;&lt;/strong&gt;：如果一个信号每被订阅一次，就需要把之前的值重复发送一遍，使用重复提供信号类。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;场景2&lt;/em&gt;&lt;/strong&gt;：可以设置capacity数量来限制缓存的value的数量,即只缓充最新的几个值。&lt;/p&gt;
+
+&lt;h3 id=&quot;41-racsubject使用步骤&quot;&gt;4.1. RACSubject使用步骤&lt;/h3&gt;
+
+&lt;p&gt;(1) 创建信号 &lt;code class=&quot;highlighter-rouge&quot;&gt;[RACSubject subject]&lt;/code&gt;，跟RACSiganl不一样，创建信号时没有block。&lt;/p&gt;
+
+&lt;p&gt;(2) 订阅信号 &lt;code class=&quot;highlighter-rouge&quot;&gt;- (RACDisposable *)subscribeNext:(void (^)(id x))nextBlock&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;(3) 发送信号 &lt;code class=&quot;highlighter-rouge&quot;&gt;sendNext:(id)value&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;RACSubject底层实现和RACSignal不一样。&lt;/p&gt;
+
+&lt;p&gt;(1) 调用subscribeNext订阅信号，只是把订阅者保存起来，并且订阅者的nextBlock已经赋值了。&lt;/p&gt;
+
+&lt;p&gt;(2) 调用sendNext发送信号，遍历刚刚保存的所有订阅者，一个一个调用订阅者的nextBlock。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;示例代码&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;    // 1.创建信号
+    RACSubject *subject = [RACSubject subject];
+
+    // 2.订阅信号
+    [subject subscribeNext:^(id x) {
+        // block调用时刻：当信号发出新值，就会调用.
+        NSLog(@&quot;第一个订阅者%@&quot;,x);
+    }];
+    [subject subscribeNext:^(id x) {
+        // block调用时刻：当信号发出新值，就会调用.
+        NSLog(@&quot;第二个订阅者%@&quot;,x);
+    }];
+
+    // 3.发送信号
+    [subject sendNext:@&quot;1&quot;];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&quot;42-racreplaysubject使用步骤&quot;&gt;4.2. RACReplaySubject使用步骤&lt;/h3&gt;
+
+&lt;p&gt;（1）创建信号 [RACSubject subject]，跟RACSiganl不一样，创建信号时没有block。&lt;/p&gt;
+
+&lt;p&gt;（2）可以先订阅信号，也可以先发送信号。&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// 订阅信号
+-(RACDisposable *)subscribeNext:(void (^)(id x))nextBlock`
+//发送信号
+sendNext:(id)value
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;RACReplaySubject:底层实现和RACSubject不一样。&lt;/p&gt;
+
+&lt;p&gt;(1) 调用sendNext发送信号，把值保存起来，然后遍历刚刚保存的所有订阅者，一个一个调用订阅者的nextBlock。&lt;/p&gt;
+
+&lt;p&gt;(2) 调用subscribeNext订阅信号，遍历保存的所有值，一个一个调用订阅者的nextBlock&lt;/p&gt;
+
+&lt;p&gt;如果想当一个信号被订阅，就重复播放之前所有值，需要先发送信号，在订阅信号。也就是先保存值，在订阅值。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;示例代码&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-objective-c&quot;&gt;// 1.创建信号
+RACReplaySubject *replaySubject = [RACReplaySubject subject];
+// 2.发送信号
+[replaySubject sendNext:@1];
+[replaySubject sendNext:@2];
+// 3.订阅信号
+[replaySubject subscribeNext:^(id x) {
+    NSLog(@&quot;第一个订阅者接收到的数据%@&quot;,x);
+}];
+// 订阅信号
+[replaySubject subscribeNext:^(id x) {
+    NSLog(@&quot;第二个订阅者接收到的数据%@&quot;,x);
+}];
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;43-racsubject替换代理&quot;&gt;4.3. RACSubject替换代理&lt;/h3&gt;
+&lt;p&gt;需求: (1) 给当前控制器添加一个按钮，modal到另一个控制器界面 (2) 另一个控制器view中有个按钮，点击按钮，通知当前控制器&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;// 步骤一：在第二个控制器.h，添加一个RACSubject代替代理。
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TwoViewController&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;UIViewController&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RACSubject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegateSignal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;@end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 步骤二：监听第二个控制器按钮点击
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@implementation&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;TwoViewController&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IBAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;notice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 通知第一个控制器，告诉它，按钮被点了
+&lt;/span&gt;
+     &lt;span class=&quot;c1&quot;&gt;// 通知代理
+&lt;/span&gt;     &lt;span class=&quot;c1&quot;&gt;// 判断代理信号是否有值
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegateSignal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 有值，才需要通知
+&lt;/span&gt;        &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegateSignal&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;sendNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@end&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 步骤三：在第一个控制器中，监听跳转按钮，给第二个控制器的代理信号赋值，并且监听.
+&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@implementation&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OneViewController&lt;/span&gt; 
+&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IBAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;btnClick&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;sender&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 创建第二个控制器
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;TwoViewController&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;twoVc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TwoViewController&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;alloc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 设置代理信号
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;twoVc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegateSignal&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RACSubject&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;subject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 订阅代理信号
+&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;twoVc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delegateSignal&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;subscribeNext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;NSLog&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;@&quot;点击了通知按钮&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}];&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 跳转到第二个控制器
+&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;presentViewController&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;twoVc&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;animated&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;YES&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;completion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;nil&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id=&quot;5ractuple&quot;&gt;5.RACTuple&lt;/h3&gt;
+&lt;p&gt;元组类,类似NSArray,用来包装值。&lt;/p&gt;
+&lt;h3 id=&quot;6racsequence&quot;&gt;6.RACSequence&lt;/h3&gt;
+&lt;p&gt;RAC中的集合类，用于代替NSArray,NSDictionary,可以使用它来快速遍历数组和字典。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;使用场景&lt;/em&gt;&lt;/strong&gt;：字典转模型&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;RACSequence和RACTuple简单使用&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;遍历数组&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NSArray *numbers = @[@1,@2,@3,@4];
+
+    // 这里其实是三步
+    // 第一步: 把数组转换成集合RACSequence numbers.rac_sequence
+    // 第二步: 把集合RACSequence转换RACSignal信号类,numbers.rac_sequence.signal
+    // 第三步: 订阅信号，激活信号，会自动把集合中的所有值，遍历出来。
+    [numbers.rac_sequence.signal subscribeNext:^(id x) {
+
+        NSLog(@&quot;%@&quot;,x);
+    }];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;遍历字典，遍历出来的键值对会包装成RACTuple(元组对象)&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NSDictionary *dict = @{@&quot;name&quot;:@&quot;xmg&quot;,@&quot;age&quot;:@18};
+    [dict.rac_sequence.signal subscribeNext:^(RACTuple *x) {
+        // 解包元组，会把元组的值，按顺序给参数里面的变量赋值
+        RACTupleUnpack(NSString *key,NSString *value) = x;
+        // 相当于以下写法
+//        NSString *key = x[0];
+//        NSString *value = x[1];
+
+        NSLog(@&quot;%@ %@&quot;,key,value);
+
+    }];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;字典转模型&lt;/em&gt;&lt;/strong&gt;
+&lt;strong&gt;&lt;em&gt;OC写法&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NSString *filePath = [[NSBundle mainBundle] pathForResource:@&quot;flags.plist&quot; ofType:nil];
+    NSArray *dictArr = [NSArray arrayWithContentsOfFile:filePath];
+    NSMutableArray *items = [NSMutableArray array];
+    for (NSDictionary *dict in dictArr) {
+        FlagItem *item = [FlagItem flagWithDict:dict];
+        [items addObject:item];
+    }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;RAC写法&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NSString *filePath = [[NSBundle mainBundle] pathForResource:@&quot;flags.plist&quot; ofType:nil];
+    NSArray *dictArr = [NSArray arrayWithContentsOfFile:filePath];
+    NSMutableArray *flags = [NSMutableArray array];
+    _flags = flags;
+    // rac_sequence注意点：调用subscribeNext，并不会马上执行nextBlock，而是会等一会。
+    [dictArr.rac_sequence.signal subscribeNext:^(id x) {
+        // 运用RAC遍历字典，x：字典
+        FlagItem *item = [FlagItem flagWithDict:x];
+        [flags addObject:item];
+    }];
+    NSLog(@&quot;%@&quot;,  NSStringFromCGRect([UIScreen mainScreen].bounds));
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;RAC高级写法&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    NSString *filePath = [[NSBundle mainBundle] pathForResource:@&quot;flags.plist&quot; ofType:nil];
+    NSArray *dictArr = [NSArray arrayWithContentsOfFile:filePath];
+    // map:映射的意思，目的：把原始值value映射成一个新值
+    // array: 把集合转换成数组
+    // 底层实现：当信号被订阅，会遍历集合中的原始值，映射成新值，并且保存到新的数组里。
+    NSArray *flags = [[dictArr.rac_sequence map:^id(id value) {
+        return [FlagItem flagWithDict:value];
+    }] array];
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id=&quot;7raccommand&quot;&gt;7.RACCommand&lt;/h3&gt;
+&lt;p&gt;处理事件的类，可以把事件如何处理、事件中的数据如何传递，包装到这个类中，监控事件的执行过程。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;使用场景&lt;/em&gt;&lt;/strong&gt;:监听按钮点击，网络请求&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;RACCommand使用步骤
+    &lt;ol&gt;
+      &lt;li&gt;创建命令 &lt;code class=&quot;highlighter-rouge&quot;&gt;initWithSignalBlock:(RACSignal * (^)(id input))signalBlock&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;在signalBlock中，创建&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSignal&lt;/code&gt;，并且作为&lt;code class=&quot;highlighter-rouge&quot;&gt;signalBlock&lt;/code&gt;的返回值&lt;/li&gt;
+      &lt;li&gt;执行命令 &lt;code class=&quot;highlighter-rouge&quot;&gt;- (RACSignal *)execute:(id)input&lt;/code&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;RACCommand使用注意
+    &lt;ol&gt;
+      &lt;li&gt;signalBlock必须要返回一个信号，不能传nil.&lt;/li&gt;
+      &lt;li&gt;如果不想要传递信号，直接创建空的信号[RACSignal empty];&lt;/li&gt;
+      &lt;li&gt;RACCommand中信号如果数据传递完，必须调用[subscriber sendCompleted]，这时命令才会执行完毕，否则永远处于执行中。&lt;/li&gt;
+      &lt;li&gt;RACCommand需要被强引用，否则接收不到RACCommand中的信号，因此RACCommand中的信号是延迟发送的。&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;RACCommand设计思想
+&lt;strong&gt;内部signalBlock为什么要返回一个信号，这个信号有什么用？&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在RAC开发中，通常会把网络请求封装到RACCommand，直接执行某个RACCommand就能发送请求。&lt;/li&gt;
+  &lt;li&gt;当RACCommand内部请求到数据的时候，需要把请求的数据传递给外界，这时候就需要通过signalBlock返回的信号传递了。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;如何拿到RACCommand中返回信号发出的数据？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;RACCommand有个执行信号源executionSignals，这个是signal of signals(信号的信号),意思是信号发出的数据是信号，不是普通的类型。&lt;/li&gt;
+  &lt;li&gt;订阅executionSignals就能拿到RACCommand中返回的信号，然后订阅signalBlock返回的信号，就能获取发出的值。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;使用场景：&lt;/em&gt;&lt;/strong&gt;监听按钮点击，网络请求，监听当前命令是否正在执行executing&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	// 1.创建命令
+    RACCommand *command = [[RACCommand alloc] initWithSignalBlock:^RACSignal *(id input) {
+    	NSLog(@&quot;执行命令&quot;);
+        // 创建空信号,必须返回信号
+        // return [RACSignal empty];
+        // 2.创建信号,用来传递数据
+        return [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+        			[subscriber sendNext:@&quot;请求数据&quot;];
+					// 注意：数据传递完，最好调用sendCompleted，这时命令才执行完毕。
+            		[subscriber sendCompleted];
+            		return nil;
+        		}];
+    }];
+    // 强引用命令，不要被销毁，否则接收不到数据
+    _conmmand = command;
+    // 3.订阅RACCommand中的信号
+    [command.executionSignals subscribeNext:^(id x) {
+        [x subscribeNext:^(id x) {
+            NSLog(@&quot;%@&quot;,x);
+        }];
+    }];
+    
+    // RAC高级用法
+    // switchToLatest:用于signal of signals，获取signal of signals发出的最新信号,也就是可以直接拿到RACCommand中的信号
+    
+    [command.executionSignals.switchToLatest subscribeNext:^(id x) {
+        NSLog(@&quot;%@&quot;,x);
+    }];
+    // 4.监听命令是否执行完毕,默认会来一次，可以直接跳过，skip表示跳过第一次信号。
+    [[command.executing skip:1] subscribeNext:^(id x) {
+
+        if ([x boolValue] == YES) {
+            // 正在执行
+            NSLog(@&quot;正在执行&quot;);
+        }else{
+            // 执行完成
+            NSLog(@&quot;执行完成&quot;);
+        }
+    }];
+   // 5.执行命令
+    [self.conmmand execute:@1];
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id=&quot;8racmulticastconnection&quot;&gt;8.RACMulticastConnection&lt;/h3&gt;
+&lt;p&gt;用于当一个信号，被多次订阅时，为了保证创建信号时，避免多次调用创建信号中的block，造成副作用，可以使用这个类处理。&lt;/p&gt;
+
+&lt;p&gt;使用注意:RACMulticastConnection通过RACSignal的-publish或者-muticast:方法创建。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;RACMulticastConnection使用步骤
+    &lt;ol&gt;
+      &lt;li&gt;创建信号 &lt;code class=&quot;highlighter-rouge&quot;&gt;+ (RACSignal *)createSignal:(RACDisposable * (^)(id&amp;lt;RACSubscriber&amp;gt; subscriber))didSubscribe&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;创建连接 &lt;code class=&quot;highlighter-rouge&quot;&gt;RACMulticastConnection *connect = [signal publish];&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;订阅信号,注意：订阅的不在是之前的信号，而是连接的信号。 &lt;code class=&quot;highlighter-rouge&quot;&gt;[connect.signal subscribeNext:nextBlock]&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;连接 &lt;code class=&quot;highlighter-rouge&quot;&gt;[connect connect]&lt;/code&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;RACMulticastConnection底层原理
+    &lt;ol&gt;
+      &lt;li&gt;创建connect，&lt;code class=&quot;highlighter-rouge&quot;&gt;connect.sourceSignal -&amp;gt; RACSignal(原始信号)  connect.signal -&amp;gt; RACSubject&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;订阅&lt;code class=&quot;highlighter-rouge&quot;&gt;connect.signal&lt;/code&gt;，会调用&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject的subscribeNext&lt;/code&gt;，创建订阅者，而且把订阅者保存起来，不会执行block。&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[connect connect]&lt;/code&gt;内部会订阅RACSignal(原始信号)，并且订阅者是&lt;code class=&quot;highlighter-rouge&quot;&gt;RACSubject&lt;/code&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+
+    &lt;p&gt;订阅原始信号，就会调用原始信号中的didSubscribe；didSubscribe，拿到订阅者调用sendNext，其实是调用RACSubject的sendNext&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;RACSubject的sendNext,会遍历RACSubject所有订阅者发送信号。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;因为刚刚第二步，都是在订阅RACSubject，因此会拿到第二步所有的订阅者，调用他们的nextBlock&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;需求：&lt;/em&gt;&lt;/strong&gt;假设在一个信号中发送请求，每次订阅一次都会发送请求，这样就会导致多次请求。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;解决：&lt;/em&gt;&lt;/strong&gt;使用RACMulticastConnection就能解决.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	// 1.创建请求信号
+   RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+        NSLog(@&quot;发送请求&quot;);
+        return nil;
+    }];
+    // 2.订阅信号
+    [signal subscribeNext:^(id x) {
+        NSLog(@&quot;接收数据&quot;);
+    }];
+    // 2.订阅信号
+    [signal subscribeNext:^(id x) {
+        NSLog(@&quot;接收数据&quot;);
+    }];
+    // 3.运行结果，会执行两遍发送请求，也就是每次订阅都会发送一次请求
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;RACMulticastConnection:解决重复请求问题&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    // 1.创建信号
+    RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id&amp;lt;RACSubscriber&amp;gt; subscriber) {
+        NSLog(@&quot;发送请求&quot;);
+        [subscriber sendNext:@1];
+        return nil;
+    }];
+    // 2.创建连接
+    RACMulticastConnection *connect = [signal publish];
+    // 3.订阅信号，
+    // 注意：订阅信号，也不能激活信号，只是保存订阅者到数组，必须通过连接,当调用连接，就会一次性调用所有订阅者的sendNext:
+    [connect.signal subscribeNext:^(id x) {
+        NSLog(@&quot;订阅者一信号&quot;);
+    }];
+
+    [connect.signal subscribeNext:^(id x) {
+        NSLog(@&quot;订阅者二信号&quot;);
+    }];
+    // 4.连接,激活信号
+    [connect connect];
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;h3 id=&quot;9-racscheduler&quot;&gt;9. RACScheduler&lt;/h3&gt;
+&lt;p&gt;RAC中的队列，用GCD封装的。&lt;/p&gt;
+
+&lt;h3 id=&quot;10-racunit&quot;&gt;10. RACUnit&lt;/h3&gt;
+&lt;p&gt;表⽰stream不包含有意义的值,也就是看到这个，可以直接理解为nil.&lt;/p&gt;
+
+&lt;h3 id=&quot;11-racevent&quot;&gt;11. RACEvent&lt;/h3&gt;
+&lt;p&gt;把数据包装成信号事件(signal event)。它主要通过RACSignal的-materialize来使用，然并卵。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;参考文献：http://www.jianshu.com/p/87ef6720a096&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 23 Aug 2017 10:11:11 +0800</pubDate>
+        <link>http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%B8%80/</link>
+        <guid isPermaLink="true">http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%B8%80/</guid>
+        
+        <category>修道练术</category>
+        
+        
+      </item>
     
       <item>
         <title>Jekyll搭建Blog</title>
@@ -84,7 +697,6 @@
  -- index.html
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;p&gt;将主题 &lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;vno-jekyll&lt;/a&gt;下载到本地，解压到刚刚的代码仓库目录下，可以把文件夹里的文件都删了。&lt;/p&gt;
 
 &lt;h4 id=&quot;2-准备模板&quot;&gt;2. 准备模板&lt;/h4&gt;
 
@@ -99,14 +711,22 @@
 &lt;p&gt;（2）参考&lt;a href=&quot;http://jekyllcn.com/&quot;&gt;Jekyll&lt;/a&gt;安装。&lt;/p&gt;
 
 &lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;~ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gem install jekyll bundler
-~ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;仓库的本地地址]
-~/[仓库的本地地址] &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle install
-~/[仓库的本地地址] &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
-
+~ &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;MsSmart.github.io
+~/MsSmart.github.io &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle install
+~/MsSmart.github.io &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;bundle &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;解释：这里没有用这个命令， &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll new [新建blog名字]&lt;/code&gt; ，是因为拷贝的主题模板已经包含了博客目录。&lt;/p&gt;
+&lt;p&gt;解释：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;MsSmart.github.io是我的仓库本地文件夹，可以替换成你自己的仓库的文件夹&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;这里没有用这个命令， &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll new [新建blog名字]&lt;/code&gt; ，是因为拷贝的主题模板已经包含了博客目录。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;此时teminal提示：&lt;/p&gt;
 
@@ -233,95 +853,6 @@ mssmart.top.		3530	IN	NS	dns2.hichina.com.
         <guid isPermaLink="true">http://localhost:4000/2017/08/Jekyll%E6%90%AD%E5%BB%BABlog/</guid>
         
         <category>打怪练级</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Hello World - Vno</title>
-        <description>&lt;h4 id=&quot;whats-this&quot;&gt;What’s this&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://github.com/onevcat/vno-jekyll&quot;&gt;Vno Jekyll&lt;/a&gt; is a theme for &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll&lt;/a&gt;. It is a port of my Ghost theme &lt;a href=&quot;https://github.com/onevcat/vno&quot;&gt;vno&lt;/a&gt;, which is originally developed from &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Dale Anthony’s Uno&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&quot;usage&quot;&gt;Usage&lt;/h4&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;git clone https://github.com/onevcat/vno-jekyll.git your_site
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;your_site
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;bundler install
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;bundler &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;jekyll serve
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Your site with &lt;code class=&quot;highlighter-rouge&quot;&gt;Vno Jekyll&lt;/code&gt; enabled should be accessible in http://127.0.0.1:4000.&lt;/p&gt;
-
-&lt;p&gt;For more information about Jekyll, please visit &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll’s site&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h4 id=&quot;configuration&quot;&gt;Configuration&lt;/h4&gt;
-
-&lt;p&gt;All configuration could be done in &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;. Remember you need to restart to serve the page when after changing the config file. Everything in the config file should be self-explanatory.&lt;/p&gt;
-
-&lt;h4 id=&quot;background-image-and-avatar&quot;&gt;Background image and avatar&lt;/h4&gt;
-
-&lt;p&gt;You could replace the background and avatar image in &lt;code class=&quot;highlighter-rouge&quot;&gt;assets/images&lt;/code&gt; folder to change them.&lt;/p&gt;
-
-&lt;h4 id=&quot;sites-using-vno&quot;&gt;Sites using Vno&lt;/h4&gt;
-
-&lt;p&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;My blog&lt;/a&gt; is using &lt;code class=&quot;highlighter-rouge&quot;&gt;Vno Jekyll&lt;/code&gt; as well, you could see how it works in real. There are some other sites using the same theme. You can find them below:&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;Site Name&lt;/th&gt;
-      &lt;th&gt;URL&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;OneV’s Den&lt;/td&gt;
-      &lt;td&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;http://onevcat.com&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;July Tang&lt;/td&gt;
-      &lt;td&gt;&lt;a href=&quot;http://onevcat.com&quot;&gt;http://blog.julytang.xyz&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;If you happen to be using this theme, welcome to &lt;a href=&quot;https://github.com/onevcat/vno-jekyll/pulls&quot;&gt;send me a pull request&lt;/a&gt; to add your site link here. :)&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;h4 id=&quot;license&quot;&gt;License&lt;/h4&gt;
-
-&lt;p&gt;Great thanks to &lt;a href=&quot;https://github.com/daleanthony&quot;&gt;Dale Anthony&lt;/a&gt; and his &lt;a href=&quot;https://github.com/daleanthony/uno&quot;&gt;Uno&lt;/a&gt;. Vno Jekyll is based on Uno, and contains a lot of modification on page layout, animation, font and some more things I can not remember. Vno Jekyll is followed with Uno and be licensed as &lt;a href=&quot;http://creativecommons.org/licenses/by/4.0/&quot;&gt;Creative Commons Attribution 4.0 International&lt;/a&gt;. See the link for more information.&lt;/p&gt;
-</description>
-        <pubDate>Tue, 16 Feb 2016 14:32:24 +0800</pubDate>
-        <link>http://localhost:4000/2016/02/hello-world-vno/</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/02/hello-world-vno/</guid>
-        
-        
-      </item>
-    
-      <item>
-        <title>Sample Post</title>
-        <description>&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
-
-&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
-
-&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
-
-&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'Tom'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hi, Tom' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
-
-&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com/docs/home&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://talk.jekyllrb.com/&quot;&gt;Jekyll Talk&lt;/a&gt;.&lt;/p&gt;
-
-</description>
-        <pubDate>Mon, 15 Feb 2016 14:32:24 +0800</pubDate>
-        <link>http://localhost:4000/2016/02/sample-post/</link>
-        <guid isPermaLink="true">http://localhost:4000/2016/02/sample-post/</guid>
         
         
       </item>

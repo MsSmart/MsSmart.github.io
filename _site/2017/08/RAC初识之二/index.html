@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <title>ReactiveCocoa初识之二</title>
+  <meta name="description" content="一、常见用法  替代代理：rac_signalForSelector。">
+  <meta name="author" content="Wei Wang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ReactiveCocoa初识之二">
+  <meta name="twitter:description" content="一、常见用法  替代代理：rac_signalForSelector。">
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="ReactiveCocoa初识之二">
+  <meta property="og:description" content="一、常见用法  替代代理：rac_signalForSelector。">
+  
+  <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
+  <link href="/assets/images/favicon.png" rel="shortcut icon" type="image/png">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%BA%8C/">
+  <link rel="alternate" type="application/rss+xml" title="MsSmart" href="http://localhost:4000/feed.xml">
+  
+  <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+  
+</head>
+
+
+  <body>
+
+    <span class="mobile btn-mobile-menu">
+        <i class="fa fa-list btn-mobile-menu__icon"></i>
+        <i class="fa fa-angle-up btn-mobile-close__icon hidden"></i>
+    </span>
+    
+    <header class="panel-cover panel-cover--collapsed" style="background-image: url('/assets/images/background-cover.jpg')">
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+
+        <a href="/#blog" title="前往 MsSmart 的主页" class="blog-button"><img src="/assets/images/avatar.jpg" width="80" alt="MsSmart logo" class="panel-cover__logo logo" /></a>
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for MsSmart" class="blog-button">MsSmart</a></h1>
+        
+        <hr class="panel-cover__divider" />
+        <p class="panel-cover__description">程序媛一枚，就职于美团，从事iOS开发工作</br>沉淀技术，记录成长，感受生活，不忘初心</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" />
+        
+        
+        <p class="panel-cover__description">保持求知欲，保持赤子心</p>
+        
+        
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="Visit blog" class="blog-button">博客</a></li>
+                
+              </ul>
+            </nav>
+          </div>
+          
+          <div><nav class="cover-navigation navigation--social">
+  <ul class="navigation">
+
+  
+
+  
+  <!-- Github -->
+  <li class="navigation__item">
+    <a href="https://github.com/MsSmart" title="@MsSmart 的 Github" target="_blank">
+      <i class='social fa fa-github'></i>
+      <span class="label">Github</span>
+    </a>
+  </li>
+  
+  
+  
+
+  
+
+  <!-- RSS -->
+  <li class="navigation__item">
+    <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+      <i class='social fa fa-rss'></i>
+      <span class="label">RSS</span>
+    </a>
+  </li>
+
+  
+  <!-- Email -->
+  <li class="navigation__item">
+    <a href="mailto:guositong2006@126.com" title="Contact me">
+      <i class='social fa fa-envelope'></i>
+      <span class="label">Email</span>
+    </a>
+  </li>
+  
+
+  </ul>
+</nav>
+</div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-purple"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="2017-08-30 10:11:11 +0800" itemprop="datePublished" class="post-meta__date date">2017-08-30</time> &#8226; <span class="post-meta__tags tags">修道练术</span>
+    </div>
+    <h1 class="post-title">ReactiveCocoa初识之二</h1>
+  </header>
+
+  <section class="post">
+    <h2 id="一常见用法">一、常见用法</h2>
+<ol>
+  <li>
+    <p>替代代理：<code class="highlighter-rouge">rac_signalForSelector</code>。</p>
+  </li>
+  <li>
+    <p>代替KVO：<code class="highlighter-rouge">rac_valuesAndChangesForKeyPath</code>用于监听某个对象的属性改变。</p>
+  </li>
+  <li>
+    <p>监听事件：<code class="highlighter-rouge">rac_signalForControlEvents</code>用于监听某个事件。</p>
+  </li>
+  <li>
+    <p>代替通知：<code class="highlighter-rouge">rac_addObserverForName</code>用于监听某个通知。</p>
+  </li>
+  <li>
+    <p>监听文本框文字改变：<code class="highlighter-rouge">rac_textSignal</code>只要文本框发出改变就会发出这个信号。</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">rac_liftSelector:withSignalsFromArray:Signals</code>:处理当界面有多次请求时，需要都获取到数据时，才能展示界面。</p>
+
+    <ul>
+      <li>
+        <p><code class="highlighter-rouge">rac_liftSelector:withSignalsFromArray:Signals</code>当传入的Signals(信号数组)，每一个signal都至少sendNext过一次，就会去触发第一个selector参数的方法。</p>
+      </li>
+      <li>
+        <p>使用注意：几个信号，参数一的方法就几个参数，每个参数对应信号发出的数据。</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>代码演示</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// 1.代替代理
+    // 需求：自定义redView,监听红色view中按钮点击
+    // 之前都是需要通过代理监听，给红色View添加一个代理属性，点击按钮的时候，通知代理做事情
+    // rac_signalForSelector:把调用某个对象的方法的信息转换成信号，就要调用这个方法，就会发送信号。
+    // 这里表示只要redV调用btnClick:,就会发出信号，订阅就好了。
+    [[redV rac_signalForSelector:@selector(btnClick:)] subscribeNext:^(id x) {
+        NSLog(@"点击红色按钮");
+    }];
+
+    // 2.KVO
+    // 把监听redV的center属性改变转换成信号，只要值改变就会发送信号
+    // observer:可以传入nil
+    [[redV rac_valuesAndChangesForKeyPath:@"center" options:NSKeyValueObservingOptionNew observer:nil] subscribeNext:^(id x) {
+
+        NSLog(@"%@",x);
+
+    }];
+
+    // 3.监听事件
+    // 把按钮点击事件转换为信号，点击按钮，就会发送信号
+    [[self.btn rac_signalForControlEvents:UIControlEventTouchUpInside] subscribeNext:^(id x) {
+
+        NSLog(@"按钮被点击了");
+    }];
+
+    // 4.代替通知
+    // 把监听到的通知转换信号
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:UIKeyboardWillShowNotification object:nil] subscribeNext:^(id x) {
+        NSLog(@"键盘弹出");
+    }];
+
+    // 5.监听文本框的文字改变
+   [_textField.rac_textSignal subscribeNext:^(id x) {
+
+       NSLog(@"文字改变了%@",x);
+   }];
+
+   // 6.处理多个请求，都返回结果的时候，统一做处理.
+    RACSignal *request1 = [RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) {
+
+        // 发送请求1
+        [subscriber sendNext:@"发送请求1"];
+        return nil;
+    }];
+
+    RACSignal *request2 = [RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) {
+        // 发送请求2
+        [subscriber sendNext:@"发送请求2"];
+        return nil;
+    }];
+
+    // 使用注意：几个信号，参数一的方法就几个参数，每个参数对应信号发出的数据。
+    [self rac_liftSelector:@selector(updateUIWithR1:r2:) withSignalsFromArray:@[request1,request2]];
+
+
+}
+// 更新UI
+- (void)updateUIWithR1:(id)data r2:(id)data1
+{
+    NSLog(@"更新UI%@  %@",data,data1);
+}
+</code></pre>
+</div>
+
+<h2 id="二常见宏">二、常见宏</h2>
+<ul>
+  <li>RAC(TARGET, [KEYPATH, [NIL_VALUE]]):用于给某个对象的某个属性绑定。</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    // 只要文本框文字改变，就会修改label的文字
+    RAC(self.labelView,text) = _textField.rac_textSignal;
+</code></pre>
+</div>
+
+<ul>
+  <li>RACObserve(self, name):监听某个对象的某个属性,返回的是信号。</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[RACObserve(self.view, center) subscribeNext:^(id x) {
+
+        NSLog(@"%@",x);
+    }];
+</code></pre>
+</div>
+
+<ul>
+  <li>
+    <p>@weakify(Obj)和@strongify(Obj),一般两个都是配套使用,在主头文件(ReactiveCocoa.h)中并没有导入，需要自己手动导入，RACEXTScope.h才可以使用。但是每次导入都非常麻烦，只需要在主头文件自己导入就好了。</p>
+  </li>
+  <li>
+    <p>RACTuplePack：把数据包装成RACTuple（元组类）</p>
+  </li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// 把参数中的数据包装成元组
+    RACTuple *tuple = RACTuplePack(@10,@20);
+</code></pre>
+</div>
+
+<ul>
+  <li>RACTupleUnpack：把RACTuple（元组类）解包成对应的数据。</li>
+</ul>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    // 把参数中的数据包装成元组
+    RACTuple *tuple = RACTuplePack(@"xmg",@20);
+
+    // 解包元组，会把元组的值，按顺序给参数里面的变量赋值
+    // name = @"xmg" age = @20
+    RACTupleUnpack(NSString *name,NSNumber *age) = tuple;
+</code></pre>
+</div>
+
+<p><strong><em>参考文献：http://www.jianshu.com/p/87ef6720a096</em></strong></p>
+
+
+  </section>
+</article>
+
+<section class="read-more">
+   
+   
+   
+   
+   <div class="read-more-item">
+       <span class="read-more-item-dim">更早的文章</span>
+       <h2 class="post-list__post-title post-title"><a href="/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%B8%80/" title="link to ReactiveCocoa初识之一">ReactiveCocoa初识之一</a></h2>
+       <p class="excerpt">1. RACSignal信号类，用于数据传递，只要有数据改变，信号内部接收到数据，就会马上发出数据。  数据改变时，信号内部会发出数据，它本身不具备发送信号的能力，而是交给内部一个订阅者去发出。  默认一个信号都是冷信号，也就是值改变了，也不会触发，只有订阅了这个信号，这个信号才会变为热信号，值改变了才会触发。  如何订阅信号：调用信号RACSignal的subscribeNext就能订阅。1.1. RACSignal使用步骤(1) 创建信号- (RACSignal *)createSig...&hellip;</p>
+       <div class="post-list__meta"><time datetime="2017-08-23 10:11:11 +0800" class="post-list__meta--date date">2017-08-23</time> &#8226; <span class="post-list__meta--tags tags">修道练术</span><a class="btn-border-small" href=/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%B8%80/>继续阅读</a></div>
+   </div>
+   
+</section>
+
+<section class="post-comments">
+  
+    <div id="disqus_thread"></div>
+    <script>
+    
+    var disqus_config = function () {
+        this.page.url = "http://localhost:4000/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%BA%8C/";
+        this.page.identifier = "/2017/08/RAC%E5%88%9D%E8%AF%86%E4%B9%8B%E4%BA%8C/";
+    };
+
+    var disqus_shortname = 'MsSmart';
+    
+    (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>要查看<a href="http://disqus.com/?ref_noscript"> Disqus </a>评论，请启用 JavaScript</noscript>
+    
+  
+  
+  
+  
+</section>
+
+
+            <section class="footer">
+    <footer>
+    	<span class="footer__copyright">本站点采用<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享 署名-非商业性使用-相同方式共享 4.0 国际 许可协议</a></span>
+        <span class="footer__copyright">由 <a href="https://jekyllrb.com">Jekyll</a> 于 2017-09-11 生成，感谢 <a href="https://www.digitalocean.com/?refcode=30ed2d146762">Digital Ocean</a> 为本站提供稳定的 VPS 服务</span>
+        <span class="footer__copyright">本站采用 <a href="https://github.com/onevcat/vno-jekyll">Vno - Jekyll</a> 作为主题，您可以在 GitHub 找到<a href="https://github.com/onevcat/OneV-s-Den">本站源码</a> - &copy; 2017</span>
+    </footer>
+</section>
+
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script type="text/javascript" src="/js/main.js"></script>
+
+
+
+    
+  </body>
+
+</html>
